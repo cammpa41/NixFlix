@@ -18,11 +18,7 @@
       --gradient-primary: linear-gradient(135deg, #FF0033 0%, #CC0066 100%);
     }
     
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin:0; padding:0; box-sizing:border-box; }
     
     body {
       background: var(--bg-dark);
@@ -392,9 +388,8 @@ document.getElementById('showTitle').textContent = decodeURIComponent(showName |
 
 function goHome() { window.location.href = 'index.html'; }
 
-// Vidfast API Listener for Auto-Next
+// Vidfast API Listener for Auto-Next (optional)
 window.addEventListener("message", function(event) {
-    // Only accept messages from vidfast
     if (event.origin.includes("vidfast.pro")) {
         try {
             const data = JSON.parse(event.data);
@@ -475,10 +470,19 @@ function loadEpisodes() {
     });
 }
 
+// ==========================
+// 🔥 UPDATED PLAYER FUNCTION
+// ==========================
 function playEpisode(episodeNumber, season) {
   const iframe = document.getElementById('videoPlayer');
-  // Adding api=1 to enable postMessage communication for auto-next
-  iframe.src = `https://vidfast.pro/tv/${showId}/${season}/${episodeNumber}?api=1`;
+  const isAutoNext = document.getElementById('autoNextToggle').checked;
+
+  iframe.src =
+    `https://vidfast.pro/tv/${showId}/${season}/${episodeNumber}` +
+    `?autoPlay=true&nextButton=true` +
+    `${isAutoNext ? '&autoNext=true' : ''}` +
+    `&theme=FF0033`;
+
   iframe.scrollIntoView({ behavior: 'smooth' });
   updateControlButtons();
 }
@@ -498,7 +502,6 @@ function updateControlButtons() {
     prevBtn.disabled = (currentEpisodeIndex <= 0);
     nextBtn.disabled = (currentEpisodeIndex >= currentEpisodeList.length - 1);
     
-    // Ensure visibility
     prevBtn.style.display = 'flex';
     nextBtn.style.display = 'flex';
 }
