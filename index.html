@@ -3,211 +3,590 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NixFlix</title>
+  <title>NixFlix — Cinematic Streaming</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      background: #141414;
-      color: #fff;
-      font-family: 'Helvetica Neue', sans-serif;
+    :root {
+      --primary: #FF0033;
+      --bg-dark: #0A0A0A;
+      --bg-elevated: #1A1A1A;
+      --text-primary: #FFFFFF;
+      --text-secondary: #B8B8B8;
+      --accent-gold: #FFD700;
+      --gradient-primary: linear-gradient(135deg, #FF0033 0%, #CC0066 100%);
+      --gradient-dark: linear-gradient(180deg, rgba(10,10,10,0) 0%, rgba(10,10,10,0.9) 100%);
+    }
+    
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
+    
+    body {
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(255, 0, 51, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(204, 0, 102, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    /* Grain texture overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1;
+      animation: grain 8s steps(10) infinite;
+    }
+    
+    @keyframes grain {
+      0%, 100% { transform: translate(0, 0); }
+      10% { transform: translate(-5%, -10%); }
+      20% { transform: translate(-15%, 5%); }
+      30% { transform: translate(7%, -25%); }
+      40% { transform: translate(-5%, 25%); }
+      50% { transform: translate(-15%, 10%); }
+      60% { transform: translate(15%, 0%); }
+      70% { transform: translate(0%, 15%); }
+      80% { transform: translate(3%, 35%); }
+      90% { transform: translate(-10%, 10%); }
+    }
+    
+    .container {
+      position: relative;
+      z-index: 2;
+    }
+    
+    /* Header */
     header {
-      padding: 20px;
-      background-color: #111;
+      padding: 30px 60px;
+      background: rgba(10, 10, 10, 0.7);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
       display: flex;
-      flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      animation: slideDown 0.8s ease-out;
     }
+    
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    header .logo {
+      text-decoration: none;
+    }
+    
     header h1 {
-      font-size: 28px;
-      color: #e50914;
-      margin: 0;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px;
+      letter-spacing: 4px;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
+    
+    header h1:hover {
+      letter-spacing: 8px;
+      filter: drop-shadow(0 0 20px rgba(255, 0, 51, 0.5));
+    }
+    
     .hamburger {
+      display: none;
       background: none;
       border: none;
       color: white;
-      font-size: 28px;
+      font-size: 32px;
       cursor: pointer;
-      display: none;
+      transition: transform 0.3s ease;
     }
+    
+    .hamburger:hover {
+      transform: rotate(90deg);
+    }
+    
     nav {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-    nav a {
-      color: #fff;
-      text-decoration: none;
-      font-size: 16px;
-      padding: 8px 12px;
-      background-color: #333;
-      border-radius: 4px;
-    }
-    nav a:hover {
-      background-color: #e50914;
-    }
-    .search-box {
-      padding: 10px;
-      font-size: 16px;
-      width: 300px;
-      border-radius: 6px;
-      border: none;
-    }
-    .section-title {
-      margin: 20px;
-      font-size: 22px;
-    }
-    .carousel {
-      display: flex;
-      overflow-x: auto;
-      padding: 0 20px 30px;
-      gap: 12px;
-    }
-    .movie-card {
-      min-width: 180px;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-    .movie-card img {
-      width: 100%;
-      border-radius: 6px;
-      height: 270px;
-      object-fit: cover;
-    }
-    .movie-card:hover {
-      transform: scale(1.05);
-    }
-    .results {
-      padding: 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
-    }
-    .result-item {
-      background-color: #222;
-      padding: 12px;
-      border-radius: 10px;
       display: flex;
       gap: 15px;
       align-items: center;
+    }
+    
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+      max-width: 500px;
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+      font-size: 18px;
+      pointer-events: none;
+    }
+    
+    .search-box {
+      width: 100%;
+      padding: 16px 20px 16px 55px;
+      font-size: 15px;
+      font-family: 'DM Sans', sans-serif;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50px;
+      color: var(--text-primary);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      font-weight: 400;
+    }
+    
+    .search-box::placeholder {
+      color: var(--text-secondary);
+    }
+    
+    .search-box:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(255, 0, 51, 0.1), 0 10px 40px rgba(0, 0, 0, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    /* Genre Navigation */
+    .genre-section {
+      padding: 40px 60px 30px;
+      animation: fadeInUp 1s ease-out 0.2s backwards;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .genre-tabs {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) transparent;
+    }
+    
+    .genre-tabs::-webkit-scrollbar {
+      height: 4px;
+    }
+    
+    .genre-tabs::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 2px;
+    }
+    
+    .genre-tabs::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 2px;
+    }
+    
+    .genre-btn {
+      padding: 12px 28px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 30px;
+      color: var(--text-primary);
       cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
     }
+    
+    .genre-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: var(--gradient-primary);
+      transition: left 0.4s ease;
+      z-index: -1;
+    }
+    
+    .genre-btn:hover {
+      border-color: var(--primary);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(255, 0, 51, 0.3);
+    }
+    
+    .genre-btn:hover::before {
+      left: 0;
+    }
+    
+    .genre-btn:active {
+      transform: translateY(0);
+    }
+    
+    /* Search Results */
+    .results {
+      padding: 30px 60px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 30px;
+      animation: fadeInUp 0.6s ease-out;
+    }
+    
+    .result-item {
+      background: var(--bg-elevated);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      gap: 20px;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    
+    .result-item::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--gradient-primary);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+      mix-blend-mode: overlay;
+    }
+    
+    .result-item:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: var(--primary);
+      box-shadow: 0 20px 60px rgba(255, 0, 51, 0.2), 0 0 0 1px rgba(255, 0, 51, 0.2);
+    }
+    
+    .result-item:hover::after {
+      opacity: 0.1;
+    }
+    
     .result-item img {
-      width: 100px;
-      height: 150px;
+      width: 130px;
+      height: 195px;
       object-fit: cover;
-      border-radius: 6px;
+      flex-shrink: 0;
     }
+    
     .result-item .info {
+      padding: 20px 20px 20px 0;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 10px;
     }
+    
     .result-item h2 {
-      font-size: 18px;
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
       margin: 0;
+      line-height: 1.3;
     }
+    
     .result-item p {
       margin: 0;
-      font-size: 14px;
-      color: #ccc;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
     }
-    ::-webkit-scrollbar {
-      height: 8px;
+    
+    .result-item .release {
+      font-weight: 500;
+      color: var(--accent-gold);
     }
-    ::-webkit-scrollbar-thumb {
-      background: #444;
-      border-radius: 4px;
+    
+    /* Section Titles */
+    .section-title {
+      padding: 60px 60px 30px;
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      font-weight: 900;
+      position: relative;
+      display: inline-block;
+      animation: fadeInUp 0.8s ease-out backwards;
     }
-    .genre-btn {
-      padding: 10px 16px;
-      font-size: 15px;
-      background-color: #333;
-      border: none;
-      border-radius: 4px;
-      color: #fff;
-      cursor: pointer;
-      flex: 0 0 auto;
-      min-width: 100px;
+    
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: 15px;
+      left: 60px;
+      width: 80px;
+      height: 4px;
+      background: var(--gradient-primary);
+      border-radius: 2px;
     }
-    .genre-btn:hover {
-      background-color: #e50914;
-    }
-    #genreTabs {
+    
+    /* Carousel */
+    .carousel {
       display: flex;
-      flex-wrap: nowrap;
-      gap: 10px;
-      margin: 20px;
       overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
+      padding: 0 60px 60px;
+      gap: 20px;
+      scrollbar-width: none;
+      scroll-behavior: smooth;
+      animation: fadeInUp 1s ease-out backwards;
     }
-    @media (max-width: 600px) {
+    
+    .carousel::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .movie-card {
+      min-width: 240px;
+      cursor: pointer;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      animation: cardEntry 0.6s ease-out backwards;
+    }
+    
+    .movie-card:nth-child(1) { animation-delay: 0.1s; }
+    .movie-card:nth-child(2) { animation-delay: 0.15s; }
+    .movie-card:nth-child(3) { animation-delay: 0.2s; }
+    .movie-card:nth-child(4) { animation-delay: 0.25s; }
+    .movie-card:nth-child(5) { animation-delay: 0.3s; }
+    .movie-card:nth-child(6) { animation-delay: 0.35s; }
+    
+    @keyframes cardEntry {
+      from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    .movie-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--gradient-dark);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      border-radius: 12px;
+      z-index: 1;
+    }
+    
+    .movie-card:hover::before {
+      opacity: 1;
+    }
+    
+    .movie-card img {
+      width: 100%;
+      height: 360px;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .movie-card:hover {
+      transform: scale(1.08) translateY(-10px);
+      z-index: 10;
+    }
+    
+    .movie-card:hover img {
+      box-shadow: 0 25px 70px rgba(255, 0, 51, 0.3), 0 0 0 2px rgba(255, 0, 51, 0.3);
+    }
+    
+    .movie-card .card-title {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      z-index: 2;
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.4s ease;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+    }
+    
+    .movie-card:hover .card-title {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      header {
+        padding: 20px 30px;
+      }
+      
+      header h1 {
+        font-size: 36px;
+      }
+      
       .hamburger {
         display: block;
       }
+      
       nav {
         display: none;
         flex-direction: column;
         width: 100%;
-        margin-top: 10px;
-        gap: 10px;
+        margin-top: 20px;
+        gap: 15px;
       }
+      
       nav.show {
         display: flex;
       }
-      .search-box {
-        width: 100%;
-        box-sizing: border-box;
+      
+      .search-wrapper {
+        max-width: 100%;
       }
+      
+      .genre-section,
+      .section-title,
+      .carousel,
+      .results {
+        padding-left: 30px;
+        padding-right: 30px;
+      }
+      
+      .section-title {
+        font-size: 32px;
+      }
+      
+      .section-title::after {
+        left: 30px;
+      }
+      
       .results {
         grid-template-columns: 1fr;
       }
+      
       .result-item {
         flex-direction: column;
-        align-items: flex-start;
       }
+      
       .result-item img {
         width: 100%;
         height: auto;
       }
-      .result-item .info {
-        width: 100%;
+      
+      .movie-card {
+        min-width: 180px;
       }
+      
+      .movie-card img {
+        height: 270px;
+      }
+    }
+    
+    /* Loading animation */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .loading {
+      animation: pulse 1.5s ease-in-out infinite;
     }
   </style>
 </head>
 <body>
 
-<header>
-  <!-- Link to the main page (index.html) -->
-  <a href="index.html" style="text-decoration: none;">
-    <h1>NixFlix</h1>
-  </a>
-  <button class="hamburger" onclick="toggleMenu()">☰</button>
-  <nav id="mobileNav">
-    <input type="text" id="searchQuery" class="search-box" placeholder="Search for movies or shows..." />
-  </nav>
-</header>
+<div class="container">
+  <header>
+    <a href="index.html" class="logo">
+      <h1>NIXFLIX</h1>
+    </a>
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
+    <nav id="mobileNav">
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchQuery" class="search-box" placeholder="Search for movies or shows..." />
+      </div>
+    </nav>
+  </header>
 
-<section id="genreTabs">
-  <button class="genre-btn" data-type="movie" data-genre="28">Action</button>
-  <button class="genre-btn" data-type="movie" data-genre="35">Comedy</button>
-  <button class="genre-btn" data-type="movie" data-genre="18">Drama</button>
-  <button class="genre-btn" data-type="movie" data-genre="27">Horror</button>
-  <button class="genre-btn" data-type="tv" data-genre="10759">Action & Adventure</button>
-  <button class="genre-btn" data-type="tv" data-genre="35">Comedy (TV)</button>
-</section>
+  <section class="genre-section">
+    <div class="genre-tabs" id="genreTabs">
+      <button class="genre-btn" data-type="movie" data-genre="28">Action</button>
+      <button class="genre-btn" data-type="movie" data-genre="35">Comedy</button>
+      <button class="genre-btn" data-type="movie" data-genre="18">Drama</button>
+      <button class="genre-btn" data-type="movie" data-genre="27">Horror</button>
+      <button class="genre-btn" data-type="movie" data-genre="878">Sci-Fi</button>
+      <button class="genre-btn" data-type="movie" data-genre="53">Thriller</button>
+      <button class="genre-btn" data-type="tv" data-genre="10759">Action & Adventure</button>
+      <button class="genre-btn" data-type="tv" data-genre="35">Comedy Series</button>
+    </div>
+  </section>
 
-<div id="searchResults" class="results"></div>
+  <div id="searchResults" class="results"></div>
 
-<h2 class="section-title">Trending Movies</h2>
-<section id="trendingMovies" class="carousel"></section>
+  <h2 class="section-title">Trending Movies</h2>
+  <section id="trendingMovies" class="carousel"></section>
 
-<h2 class="section-title">Trending TV Shows</h2>
-<section id="trendingTV" class="carousel"></section>
+  <h2 class="section-title">Trending TV Shows</h2>
+  <section id="trendingTV" class="carousel"></section>
+</div>
 
 <script>
 function toggleMenu() {
@@ -230,14 +609,14 @@ function displayResults(items) {
     if (!item.poster_path) return;
     const title = item.title || item.name;
     const releaseDate = item.release_date || item.first_air_date || 'Unknown';
-    const overview = item.overview ? item.overview.slice(0, 100) + '...' : 'No description available.';
+    const overview = item.overview ? item.overview.slice(0, 120) + '...' : 'No description available.';
     const resultDiv = document.createElement('div');
     resultDiv.className = 'result-item';
     resultDiv.innerHTML = `
       <img src="${imgBase + item.poster_path}" alt="${title}" />
       <div class="info">
         <h2>${title}</h2>
-        <p><strong>Release:</strong> ${releaseDate}</p>
+        <p class="release"><strong>Release:</strong> ${releaseDate}</p>
         <p>${overview}</p>
       </div>
     `;
@@ -257,7 +636,10 @@ fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${apiKey}`)
       if (!item.poster_path) return;
       const div = document.createElement('div');
       div.className = 'movie-card';
-      div.innerHTML = `<img src="${imgBase + item.poster_path}" alt="${item.title}" title="${item.title}" />`;
+      div.innerHTML = `
+        <img src="${imgBase + item.poster_path}" alt="${item.title}" />
+        <div class="card-title">${item.title}</div>
+      `;
       div.onclick = () => {
         window.location.href = `movie.html?id=${item.id}`;
       };
@@ -272,7 +654,10 @@ fetch(`https://api.themoviedb.org/3/trending/tv/week?api_key=${apiKey}`)
       if (!item.poster_path) return;
       const div = document.createElement('div');
       div.className = 'movie-card';
-      div.innerHTML = `<img src="${imgBase + item.poster_path}" alt="${item.name}" title="${item.name}" />`;
+      div.innerHTML = `
+        <img src="${imgBase + item.poster_path}" alt="${item.name}" />
+        <div class="card-title">${item.name}</div>
+      `;
       div.onclick = () => {
         window.location.href = `show.html?id=${item.id}`;
       };
