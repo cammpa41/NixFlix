@@ -73,7 +73,9 @@
       filter: drop-shadow(0 0 20px rgba(255, 0, 51, 0.5));
     }
 
-    .search-wrapper { position: relative; flex: 1; max-width: 400px; }
+    .header-right { display: flex; align-items: center; gap: 20px; flex: 1; justify-content: flex-end; }
+
+    .search-wrapper { position: relative; width: 100%; max-width: 400px; }
     #searchBar {
       width: 100%; padding: 12px 20px 12px 50px; font-size: 15px;
       background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
@@ -120,7 +122,6 @@
     }
     .btn-primary { background: var(--gradient-primary); border: none; }
 
-    /* --- GRAY DROPDOWN STYLING --- */
     .controls { margin: 40px 0; }
     label { display: block; font-size: 16px; margin-bottom: 12px; color: var(--text-secondary); }
 
@@ -129,7 +130,7 @@
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 30px;
-      color: #B8B8B8; /* Gray text */
+      color: #B8B8B8;
       cursor: pointer;
       min-width: 200px;
       outline: none;
@@ -141,12 +142,8 @@
       background-size: 15px;
     }
 
-    select option {
-      background-color: #1A1A1A; /* Dark box */
-      color: #B8B8B8; /* Gray list items */
-    }
+    select option { background-color: #1A1A1A; color: #B8B8B8; }
 
-    /* SECTION TITLES */
     .section-title { 
       padding: 20px 0; font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 900; 
       display: flex; align-items: center; gap: 15px;
@@ -177,8 +174,11 @@
 
 <header>
   <h1 onclick="window.location.href='index.html'">NIXFLIX</h1>
-  <div class="search-wrapper">
-    <input type="text" id="searchBar" placeholder="Search series..." onkeyup="handleSearch(event)">
+  <div class="header-right">
+    <button id="watchlistBtn" class="control-btn" onclick="toggleWatchlist()" style="padding: 10px 20px; font-size: 13px;">+ Add to My List</button>
+    <div class="search-wrapper">
+      <input type="text" id="searchBar" placeholder="Search series..." onkeyup="handleSearch(event)">
+    </div>
   </div>
 </header>
 
@@ -224,6 +224,7 @@ const showId = params.get('id');
 const showName = params.get('name');
 let currentEpisodeIndex = -1;
 let currentEpisodeList = [];
+let currentShowData = null; // Store for Watchlist logic
 
 document.getElementById('showTitle').textContent = decodeURIComponent(showName || 'Series');
 
@@ -247,6 +248,9 @@ function handleSearch(event) {
 async function loadSeasons() {
   const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}?api_key=${apiKey}`);
   const data = await res.json();
+  currentShowData = data; // Save data for watchlist
+  updateWatchlistBtnUI();
+
   const select = document.getElementById('seasonSelect');
   data.seasons.forEach(s => {
     if (s.season_number === 0) return;
@@ -308,6 +312,36 @@ function loadRecommendations() {
         recs.appendChild(div);
       });
     });
+}
+
+// WATCHLIST LOGIC
+function toggleWatchlist() {
+    let list = JSON.parse(localStorage.getItem('nixflix_watchlist')) || [];
+    const index = list.findIndex(item => item.id == currentShowData.id);
+
+    if (index > -1) {
+        list.splice(index, 1);
+    } else {
+        list.push({
+            id: currentShowData.id,
+            poster_path: currentShowData.poster_path,
+            name: currentShowData.name,
+            media_type: 'tv' 
+        });
+    }
+
+    localStorage.setItem('nixflix_watchlist', JSON.stringify(list));
+    updateWatchlistBtnUI();
+}
+
+function updateWatchlistBtnUI() {
+    const list = JSON.parse(localStorage.getItem('nixflix_watchlist')) || [];
+    const btn = document.getElementById('watchlistBtn');
+    if (!currentShowData) return;
+    const isAdded = list.some(item => item.id == currentShowData.id);
+    
+    btn.innerHTML = isAdded ? '✓ In My List' : '+ Add to My List';
+    btn.style.background = isAdded ? 'var(--primary)' : 'rgba(255,255,255,0.05)';
 }
 
 loadSeasons();
