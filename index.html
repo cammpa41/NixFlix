@@ -23,17 +23,16 @@
       color: var(--text-primary);
       font-family: 'DM Sans', sans-serif;
       overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    /* HEADER */
     header {
       padding: 25px 60px;
       position: fixed; top: 0; width: 100%; z-index: 10000;
       display: flex; justify-content: space-between; align-items: center;
       background: linear-gradient(to bottom, rgba(10,10,10,1) 40%, transparent);
-      pointer-events: none;
     }
-    .logo, .search-input { pointer-events: auto; }
+    
     .logo {
       font-family: 'Bebas Neue', sans-serif;
       font-size: 48px; letter-spacing: 4px;
@@ -41,6 +40,7 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       cursor: pointer;
+      user-select: none;
     }
 
     .search-input {
@@ -49,7 +49,6 @@
       backdrop-filter: blur(20px); outline: none; transition: 0.3s;
     }
 
-    /* HERO */
     #heroSection { position: relative; height: 85vh; width: 100%; overflow: hidden; z-index: 10; }
     .hero-slide {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -64,53 +63,62 @@
                   linear-gradient(to top, rgba(10,10,10,1) 0%, transparent 30%);
     }
     .hero-content { position: relative; z-index: 100; max-width: 700px; margin-top: 60px; }
-    .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: 100px; line-height: 0.85; margin-bottom: 25px; }
+    .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: 100px; line-height: 0.85; margin-bottom: 25px; user-select: none; }
     .hero-btns { display: flex; gap: 15px; }
-    .btn { padding: 16px 35px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; transition: 0.3s; }
+    
+    .btn { 
+        padding: 16px 35px; border-radius: 8px; font-weight: 700; 
+        cursor: pointer; border: none; transition: 0.3s; 
+    }
     .btn-watch { background: var(--accent-blue); color: white; }
     .btn-info { background: rgba(255,255,255,0.1); color: white; backdrop-filter: blur(10px); }
 
-    /* GENRE NAV */
     .genre-nav { padding: 30px 60px; position: relative; z-index: 100; background: var(--bg-dark); }
     .genre-list { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; }
     .genre-item {
       padding: 10px 25px; background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.1); border-radius: 50px;
       color: #B8B8B8; cursor: pointer; white-space: nowrap; transition: 0.3s;
+      user-select: none;
     }
     .genre-item.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-    /* CONTENT AREAS */
-    .section-title { padding: 40px 60px 20px; font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 900; }
-    
-    /* SPECIFIC SEARCH TITLE PADDING */
-    #searchTitle { 
-      padding-top: 140px; /* Pushes the "Results for" text down past the logo */
-      margin-bottom: -100px; /* Pulls the grid closer to the title */
-    }
+    .section-title { padding: 60px 60px 25px; font-family: 'Playfair Display', serif; font-size: 42px; font-weight: 900; display: flex; align-items: center; gap: 15px; user-select: none; }
+    .section-title::before { content: ''; width: 4px; height: 35px; background: var(--gradient-primary); border-radius: 10px; }
 
-    .carousel { display: flex; overflow-x: auto; padding: 0 60px 40px; gap: 20px; scrollbar-width: none; }
-    
-    /* GRID ONLY USED FOR SEARCH */
-    .search-grid { 
-      display: grid; 
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
-      padding: 120px 60px 60px; /* Padding for the actual movie posters */
-      gap: 25px; 
+    .carousel { 
+      display: flex; 
+      overflow-x: auto; 
+      padding: 20px 60px 40px; 
+      gap: 20px; 
+      scrollbar-width: none; 
+      cursor: grab;
+      user-select: none; 
+      -webkit-user-select: none;
     }
-    
-    .movie-card { width: 220px; flex-shrink: 0; transition: 0.4s; cursor: pointer; }
-    .search-grid .movie-card { width: 100%; }
-    .movie-card img { width: 100%; height: 320px; object-fit: cover; border-radius: 12px; }
-    .movie-card:hover { transform: scale(1.05); }
+    .carousel:active { cursor: grabbing; }
 
+    .movie-card { 
+      width: 220px; 
+      flex-shrink: 0; 
+      transition: 0.5s; 
+      cursor: pointer; 
+    }
+    .movie-card img { 
+      width: 100%; height: 320px; object-fit: cover; border-radius: 12px; 
+      pointer-events: none;
+      -webkit-user-drag: none;
+    }
+    .movie-card:hover { transform: scale(1.08) translateY(-10px); }
+
+    .search-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); padding: 120px 60px; gap: 25px; }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="logo" id="mainLogo">NIXFLIX</div>
+  <div class="logo" onclick="resetToHome()">NIXFLIX</div>
   <input type="text" id="searchInput" class="search-input" placeholder="Search movies or shows..." />
 </header>
 
@@ -130,19 +138,22 @@
 
 <div id="contentContainer">
   <div id="shelfView">
+    <div id="myListSection" class="hidden">
+        <h2 class="section-title">My List</h2>
+        <section id="myListShelf" class="carousel"></section>
+    </div>
+
     <div id="defaultShelves">
         <h2 class="section-title">Trending Now</h2>
         <section id="trendingShelf" class="carousel"></section>
         <h2 class="section-title">Popular Choice</h2>
         <section id="popularShelf" class="carousel"></section>
     </div>
-    
     <div id="genreSingleShelf" class="hidden">
         <h2 class="section-title" id="genreTitle">Selection</h2>
         <section id="genreShelf" class="carousel"></section>
     </div>
   </div>
-  
   <div id="searchView" class="hidden">
     <h2 class="section-title" id="searchTitle">Search Results</h2>
     <section id="searchGrid" class="search-grid"></section>
@@ -153,46 +164,64 @@
 const apiKey = '93843c8c295f5655a75d6361487e911a';
 const imgBase = 'https://image.tmdb.org/t/p/original';
 
-const sInput = document.getElementById('searchInput');
-const heroSec = document.getElementById('heroSection');
-const genreNav = document.getElementById('genreNavSection');
-const shelfView = document.getElementById('shelfView');
-const searchView = document.getElementById('searchView');
-const defShelves = document.getElementById('defaultShelves');
-const genreSingle = document.getElementById('genreSingleShelf');
+function makeDraggable(el) {
+    let isDown = false, startX, scrollLeft;
+    el.onmousedown = (e) => { 
+        isDown = true; 
+        startX = e.pageX - el.offsetLeft; 
+        scrollLeft = el.scrollLeft;
+        el.style.scrollBehavior = 'auto';
+    };
+    el.onmouseleave = () => isDown = false;
+    el.onmouseup = () => { isDown = false; el.style.scrollBehavior = 'smooth'; };
+    el.onmousemove = (e) => { 
+        if(!isDown) return; 
+        e.preventDefault();
+        const x = e.pageX - el.offsetLeft; 
+        const walk = (x - startX) * 2; 
+        el.scrollLeft = scrollLeft - walk; 
+    };
+}
 
-// SMART ROUTER
 function goToDetails(item) {
     const isTV = item.media_type === 'tv' || item.first_air_date !== undefined;
-    if (isTV) {
-        window.location.href = `show.html?id=${item.id}&name=${encodeURIComponent(item.name || item.original_name)}`;
-    } else {
-        window.location.href = `movie.html?id=${item.id}`;
+    window.location.href = isTV 
+        ? `show.html?id=${item.id}&name=${encodeURIComponent(item.name || item.original_name)}`
+        : `movie.html?id=${item.id}`;
+}
+
+function resetToHome() { window.location.reload(); }
+
+// NEW: Render My List
+function renderMyList() {
+    const myList = JSON.parse(localStorage.getItem('nixflix_watchlist')) || [];
+    const section = document.getElementById('myListSection');
+    const shelf = document.getElementById('myListShelf');
+
+    if (myList.length === 0) {
+        section.classList.add('hidden');
+        return;
     }
+
+    section.classList.remove('hidden');
+    shelf.innerHTML = '';
+    myList.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'movie-card';
+        card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${item.poster_path}" />`;
+        card.onclick = () => goToDetails(item);
+        shelf.appendChild(card);
+    });
+    makeDraggable(shelf);
 }
 
-function resetToHome() {
-    heroSec.classList.remove('hidden'); 
-    genreNav.classList.remove('hidden'); 
-    shelfView.classList.remove('hidden');
-    searchView.classList.add('hidden');
-    defShelves.classList.remove('hidden');
-    genreSingle.classList.add('hidden');
-    sInput.value = '';
-    document.querySelectorAll('.genre-item').forEach(i => i.classList.remove('active'));
-    document.querySelector('[data-id="all"]').classList.add('active');
-}
-
-// SEARCH LOGIC
-sInput.oninput = (e) => {
+document.getElementById('searchInput').oninput = (e) => {
     const q = e.target.value.trim();
     if (q.length > 0) {
-        heroSec.classList.add('hidden');
-        genreNav.classList.add('hidden');
-        shelfView.classList.add('hidden');
-        searchView.classList.remove('hidden');
-        document.getElementById('searchTitle').innerText = `Results for "${q}"`;
-        
+        document.getElementById('heroSection').classList.add('hidden');
+        document.getElementById('genreNavSection').classList.add('hidden');
+        document.getElementById('shelfView').classList.add('hidden');
+        document.getElementById('searchView').classList.remove('hidden');
         fetch(`https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${q}`)
             .then(r => r.json()).then(data => {
                 const grid = document.getElementById('searchGrid');
@@ -207,86 +236,65 @@ sInput.oninput = (e) => {
                 });
             });
     } else {
-        resetToHome();
+        document.getElementById('heroSection').classList.remove('hidden');
+        document.getElementById('genreNavSection').classList.remove('hidden');
+        document.getElementById('shelfView').classList.remove('hidden');
+        document.getElementById('searchView').classList.add('hidden');
     }
 };
 
-// GENRE LOGIC (Keeps Hero & Nav)
 document.querySelectorAll('.genre-item').forEach(item => {
     item.onclick = () => {
         const gid = item.dataset.id;
         document.querySelectorAll('.genre-item').forEach(i => i.classList.remove('active'));
         item.classList.add('active');
-
-        if (gid === 'all') {
-            resetToHome();
-        } else {
-            heroSec.classList.remove('hidden');
-            genreNav.classList.remove('hidden');
-            searchView.classList.add('hidden');
-            shelfView.classList.remove('hidden');
-            defShelves.classList.add('hidden');
-            genreSingle.classList.remove('hidden');
-            document.getElementById('genreTitle').innerText = `${item.innerText} Selection`;
-            
-            fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=${gid}`)
-                .then(r => r.json()).then(data => {
-                    const shelf = document.getElementById('genreShelf');
-                    shelf.innerHTML = '';
-                    data.results.forEach(m => {
-                        const card = document.createElement('div');
-                        card.className = 'movie-card';
-                        card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${m.poster_path}" />`;
-                        card.onclick = () => goToDetails(m);
-                        shelf.appendChild(card);
-                    });
-                });
+        if (gid === 'all') { resetToHome(); } 
+        else {
+            document.getElementById('myListSection').classList.add('hidden');
+            document.getElementById('defaultShelves').classList.add('hidden');
+            document.getElementById('genreSingleShelf').classList.remove('hidden');
+            document.getElementById('genreTitle').innerText = item.innerText;
+            renderShelf(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=${gid}`, 'genreShelf');
         }
     };
 });
 
-document.getElementById('mainLogo').onclick = resetToHome;
-
 async function setupHero() {
   const res = await fetch(`https://api.themoviedb.org/3/trending/all/day?api_key=${apiKey}`);
   const data = await res.json();
-  const top5 = data.results.slice(0, 5);
   const heroContainer = document.getElementById('hero');
-
-  top5.forEach((item, index) => {
+  data.results.slice(0, 5).forEach((item, index) => {
     const slide = document.createElement('div');
     slide.className = `hero-slide ${index === 0 ? 'active' : ''}`;
     slide.style.backgroundImage = `url(${imgBase + item.backdrop_path})`;
-    slide.innerHTML = `<div class="hero-content"><h1 class="hero-title">${item.title || item.name}</h1><div class="hero-btns"><button class="btn btn-watch" id="heroBtn-${index}">▶ Watch Now</button><button class="btn btn-info">ⓘ Info</button></div></div>`;
+    slide.innerHTML = `<div class="hero-content"><h1 class="hero-title">${item.title || item.name}</h1><div class="hero-btns"><button class="btn btn-watch" onclick='goToDetails(${JSON.stringify(item)})'>▶ Watch Now</button><button class="btn btn-info">ⓘ Info</button></div></div>`;
     heroContainer.appendChild(slide);
-    document.getElementById(`heroBtn-${index}`).onclick = () => goToDetails(item);
   });
-
   let current = 0;
   setInterval(() => {
     const slides = document.querySelectorAll('.hero-slide');
-    if (slides.length) {
-        current = (current + 1) % 5;
-        slides.forEach((s, i) => s.classList.toggle('active', i === current));
-    }
+    if (slides.length) { current = (current + 1) % slides.length; slides.forEach((s, i) => s.classList.toggle('active', i === current)); }
   }, 5000);
 }
 
-const renderShelf = (url, id) => {
+function renderShelf(url, id) {
   fetch(url).then(r => r.json()).then(data => {
     const shelf = document.getElementById(id);
     shelf.innerHTML = '';
     data.results.forEach(m => {
+        if(!m.poster_path) return;
         const card = document.createElement('div');
         card.className = 'movie-card';
         card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${m.poster_path}" />`;
         card.onclick = () => goToDetails(m);
         shelf.appendChild(card);
     });
+    makeDraggable(shelf);
   });
-};
+}
 
 setupHero();
+renderMyList();
 renderShelf(`https://api.themoviedb.org/3/trending/all/week?api_key=${apiKey}`, 'trendingShelf');
 renderShelf(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`, 'popularShelf');
 </script>
