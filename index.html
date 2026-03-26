@@ -12,7 +12,6 @@
       --primary: #FF0033;
       --bg-dark: #0A0A0A;
       --text-primary: #FFFFFF;
-      --text-secondary: #B8B8B8;
       --accent-blue: #3B82F6;
       --gradient-primary: linear-gradient(135deg, #FF0033 0%, #CC0066 100%);
     }
@@ -26,166 +25,141 @@
       overflow-x: hidden;
     }
 
-    /* HEADER - Fixed Pointer Events */
+    /* HEADER */
     header {
-      padding: 30px 60px;
-      position: absolute; top: 0; width: 100%; z-index: 100;
+      padding: 25px 60px;
+      position: fixed; top: 0; width: 100%; z-index: 10000;
       display: flex; justify-content: space-between; align-items: center;
-      pointer-events: none; /* Allows clicks to pass through to Hero buttons */
+      background: linear-gradient(to bottom, rgba(10,10,10,1) 40%, transparent);
+      pointer-events: none;
     }
-    
     .logo, .search-input { pointer-events: auto; }
-
     .logo {
       font-family: 'Bebas Neue', sans-serif;
       font-size: 48px; letter-spacing: 4px;
       background: var(--gradient-primary);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-decoration: none;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       cursor: pointer;
     }
 
-    .logo:hover { 
-      transform: scale(1.1) rotate(-1deg);
-      filter: drop-shadow(0 0 20px rgba(255, 0, 51, 0.8));
-      letter-spacing: 8px;
-    }
-
     .search-input {
-      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
       padding: 12px 25px; border-radius: 50px; color: white; width: 300px;
-      backdrop-filter: blur(15px); transition: 0.4s;
+      backdrop-filter: blur(20px); outline: none;
     }
 
-    /* HERO SECTION */
-    #hero { position: relative; height: 85vh; width: 100%; overflow: hidden; }
+    /* HERO - ALWAYS VISIBLE */
+    #hero { position: relative; height: 80vh; width: 100%; overflow: hidden; z-index: 10; }
     .hero-slide {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       background-size: cover; background-position: center 15%;
       opacity: 0; transition: opacity 1.2s ease-in-out;
       display: flex; align-items: center; padding: 0 60px;
     }
-    .hero-slide.active { opacity: 1; z-index: 2; }
+    .hero-slide.active { opacity: 1; z-index: 5; }
     .hero-slide::before {
       content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: linear-gradient(to right, rgba(10,10,10,0.95) 10%, transparent 70%),
-                  linear-gradient(to top, rgba(10,10,10,1) 0%, transparent 40%);
+      background: linear-gradient(to right, rgba(10,10,10,0.9) 10%, transparent 70%),
+                  linear-gradient(to top, rgba(10,10,10,1) 0%, transparent 30%);
     }
-
-    .hero-content { position: relative; z-index: 5; max-width: 700px; margin-top: 80px; }
-    .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: 110px; line-height: 0.85; margin-bottom: 20px; }
-    
-    .hero-btns { display: flex; gap: 15px; margin-bottom: 40px; position: relative; z-index: 10; }
-    .btn { padding: 16px 35px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; transition: 0.3s; pointer-events: auto; }
+    .hero-content { position: relative; z-index: 1000; max-width: 700px; margin-top: 60px; pointer-events: none; }
+    .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: 100px; line-height: 0.85; margin-bottom: 25px; }
+    .hero-btns { display: flex; gap: 15px; pointer-events: auto; }
+    .btn { padding: 16px 35px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; transition: 0.3s; }
     .btn-watch { background: var(--accent-blue); color: white; }
     .btn-info { background: rgba(255,255,255,0.1); color: white; backdrop-filter: blur(10px); }
 
-    .hero-nav { display: flex; gap: 12px; position: relative; z-index: 10; pointer-events: auto; }
-    .nav-bar { width: 55px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; overflow: hidden; cursor: pointer; }
-    .nav-fill { height: 100%; width: 0%; background: white; }
-    .active-nav .nav-fill { animation: fillProgress 6s linear forwards; }
-    @keyframes fillProgress { from { width: 0%; } to { width: 100%; } }
-
-    /* GENRE NAV - Lowered and decoupled from clipping */
-    .genre-nav { 
-      padding: 40px 60px 10px; 
-      margin-top: 20px; 
-      position: relative; 
-      z-index: 50; 
-      pointer-events: none;
-    }
-    .genre-list { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; pointer-events: auto; }
+    /* GENRE NAV */
+    .genre-nav { padding: 30px 60px; position: relative; z-index: 100; background: var(--bg-dark); }
+    .genre-list { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; }
     .genre-item {
-      padding: 10px 25px; background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 50px;
-      color: var(--text-secondary); cursor: pointer; white-space: nowrap; transition: 0.4s;
+      padding: 10px 25px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 50px;
+      color: #B8B8B8; cursor: pointer; white-space: nowrap; transition: 0.3s;
     }
-    .genre-item:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
-    .genre-item.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 15px rgba(255, 0, 51, 0.4); }
+    .genre-item.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-    /* TITLES */
-    .section-title {
-      padding: 60px 60px 30px;
-      font-family: 'Playfair Display', serif;
-      font-size: 42px;
-      font-weight: 900;
-      position: relative;
-    }
-    .section-title::after {
-      content: ''; position: absolute; bottom: 15px; left: 60px;
-      width: 80px; height: 4px; background: var(--gradient-primary); border-radius: 2px;
-    }
-
-    /* SHELVES & RESULTS GRID */
-    .carousel { display: flex; overflow-x: auto; padding: 0 60px 60px; gap: 20px; cursor: grab; scrollbar-width: none; }
-    .grid-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); padding: 0 60px 60px; gap: 25px; }
-    
-    .movie-card { min-width: 230px; transition: 0.5s cubic-bezier(0.2, 1, 0.3, 1); cursor: pointer; }
-    .grid-view .movie-card { min-width: 0; }
-    .movie-card img { width: 100%; height: 345px; object-fit: cover; border-radius: 16px; pointer-events: none; }
-    .movie-card:hover { transform: scale(1.08) translateY(-10px); z-index: 10; }
+    /* SHELVES AREA */
+    .section-title { padding: 40px 60px 20px; font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 900; }
+    .carousel { display: flex; overflow-x: auto; padding: 0 60px 40px; gap: 20px; scrollbar-width: none; }
+    .movie-card { width: 220px; flex-shrink: 0; transition: 0.4s; cursor: pointer; }
+    .movie-card img { width: 100%; height: 320px; object-fit: cover; border-radius: 12px; }
+    .movie-card:hover { transform: scale(1.05); }
 
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <header>
-    <div class="logo" onclick="window.location.reload()">NIXFLIX</div>
-    <input type="text" id="searchQuery" class="search-input" placeholder="Search for cinematic gold..." />
-  </header>
+<header>
+  <div class="logo" onclick="window.location.reload()">NIXFLIX</div>
+  <input type="text" id="searchQuery" class="search-input" placeholder="Search movies..." />
+</header>
 
-  <section id="hero"></section>
+<section id="hero"></section>
 
-  <nav class="genre-nav">
-    <div class="genre-list">
-      <div class="genre-item active" data-id="all">All Trends</div>
-      <div class="genre-item" data-id="28">Action</div>
-      <div class="genre-item" data-id="27">Horror</div>
-      <div class="genre-item" data-id="35">Comedy</div>
-      <div class="genre-item" data-id="878">Sci-Fi</div>
-      <div class="genre-item" data-id="18">Drama</div>
-    </div>
-  </nav>
+<nav class="genre-nav">
+  <div class="genre-list">
+    <div class="genre-item active" data-id="all">All Trends</div>
+    <div class="genre-item" data-id="28">Action</div>
+    <div class="genre-item" data-id="27">Horror</div>
+    <div class="genre-item" data-id="35">Comedy</div>
+    <div class="genre-item" data-id="878">Sci-Fi</div>
+  </div>
+</nav>
 
-  <div id="genreResults" class="grid-view hidden"></div>
-
-  <div id="mainContent">
+<div id="shelfContainer">
+  <div id="defaultShelves">
     <h2 class="section-title">Trending Now</h2>
-    <section id="trendingMixed" class="carousel"></section>
-
-    <h2 class="section-title">Global Favourites</h2>
+    <section id="trendingShelf" class="carousel"></section>
+    <h2 class="section-title">Popular Choice</h2>
     <section id="popularShelf" class="carousel"></section>
-
-    <h2 class="section-title">Top Rated</h2>
-    <section id="topRatedShelf" class="carousel"></section>
+  </div>
+  
+  <div id="genreView" class="hidden">
+    <h2 class="section-title" id="genreTitle">Genre Results</h2>
+    <section id="genreShelf" class="carousel"></section>
   </div>
 </div>
 
 <script>
 const apiKey = '93843c8c295f5655a75d6361487e911a';
 const imgBase = 'https://image.tmdb.org/t/p/original';
-let currentSlide = 0;
 
-// DRAG ENGINE
-const initDrag = (el) => {
-  let isDown = false, startX, scrollLeft;
-  el.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - el.offsetLeft; scrollLeft = el.scrollLeft; });
-  el.addEventListener('mouseleave', () => isDown = false);
-  el.addEventListener('mouseup', () => isDown = false);
-  el.addEventListener('mousemove', (e) => {
-    if (!isDown) return;
-    e.preventDefault();
-    const x = e.pageX - el.offsetLeft;
-    const walk = (x - startX) * 2;
-    el.scrollLeft = scrollLeft - walk;
-  });
-};
+// GENRE SWITCHING LOGIC
+document.querySelectorAll('.genre-item').forEach(item => {
+  item.onclick = () => {
+    const genreId = item.dataset.id;
+    const name = item.innerText;
+    
+    document.querySelectorAll('.genre-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
 
-// HERO SETUP
+    if (genreId === 'all') {
+      document.getElementById('defaultShelves').classList.remove('hidden');
+      document.getElementById('genreView').classList.add('hidden');
+    } else {
+      document.getElementById('defaultShelves').classList.add('hidden');
+      document.getElementById('genreView').classList.remove('hidden');
+      document.getElementById('genreTitle').innerText = `${name} Favourites`;
+      
+      const shelf = document.getElementById('genreShelf');
+      shelf.innerHTML = '<p style="padding-left:60px">Loading...</p>';
+
+      fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=${genreId}`)
+        .then(r => r.json()).then(data => {
+          shelf.innerHTML = data.results.map(m => `
+            <div class="movie-card" onclick="window.location.href='movie.html?id=${m.id}'">
+              <img src="https://image.tmdb.org/t/p/w500${m.poster_path}" />
+            </div>
+          `).join('');
+        });
+    }
+  };
+});
+
+// HERO SYSTEM
 async function setupHero() {
   const res = await fetch(`https://api.themoviedb.org/3/trending/all/day?api_key=${apiKey}`);
   const data = await res.json();
@@ -201,78 +175,35 @@ async function setupHero() {
         <h1 class="hero-title">${item.title || item.name}</h1>
         <div class="hero-btns">
           <button class="btn btn-watch" onclick="window.location.href='movie.html?id=${item.id}'">▶ Watch Now</button>
-          <button class="btn btn-info">ⓘ More Info</button>
-        </div>
-        <div class="hero-nav">
-           ${top5.map((_, i) => `<div class="nav-bar ${i === index ? 'active-nav' : ''}" onclick="goToSlide(${i})"><div class="nav-fill"></div></div>`).join('')}
+          <button class="btn btn-info">ⓘ Info</button>
         </div>
       </div>
     `;
     hero.appendChild(slide);
   });
-  setInterval(() => { currentSlide = (currentSlide + 1) % 5; updateSliderUI(); }, 6000);
+
+  let current = 0;
+  setInterval(() => {
+    const slides = document.querySelectorAll('.hero-slide');
+    current = (current + 1) % 5;
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+  }, 6000);
 }
 
-function goToSlide(i) { currentSlide = i; updateSliderUI(); }
-
-function updateSliderUI() {
-  document.querySelectorAll('.hero-slide').forEach((s, i) => s.classList.toggle('active', i === currentSlide));
-  document.querySelectorAll('.nav-bar').forEach((n, i) => n.classList.toggle('active-nav', i === currentSlide));
-}
-
-// SHELF RENDERER
-const renderShelf = (url, containerId) => {
+// RENDER SHELVES
+const renderShelf = (url, id) => {
   fetch(url).then(r => r.json()).then(data => {
-    const container = document.getElementById(containerId);
-    data.results.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'movie-card';
-      div.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${item.poster_path}" />`;
-      div.onclick = () => window.location.href = `movie.html?id=${item.id}`;
-      container.appendChild(div);
-    });
-    initDrag(container);
+    document.getElementById(id).innerHTML = data.results.map(m => `
+      <div class="movie-card" onclick="window.location.href='movie.html?id=${m.id}'">
+        <img src="https://image.tmdb.org/t/p/w500${m.poster_path}" />
+      </div>
+    `).join('');
   });
 };
 
-// GENRE FILTER LOGIC
-document.querySelectorAll('.genre-item').forEach(item => {
-  item.addEventListener('click', () => {
-    document.querySelectorAll('.genre-item').forEach(i => i.classList.remove('active'));
-    item.classList.add('active');
-    
-    const genreId = item.dataset.id;
-    const resultsContainer = document.getElementById('genreResults');
-    const mainContent = document.getElementById('mainContent');
-
-    if (genreId === 'all') {
-      resultsContainer.classList.add('hidden');
-      mainContent.classList.remove('hidden');
-    } else {
-      mainContent.classList.add('hidden');
-      resultsContainer.classList.remove('hidden');
-      resultsContainer.innerHTML = '<p style="padding: 20px;">Curating Favourites...</p>';
-
-      fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=${genreId}`)
-        .then(r => r.json()).then(data => {
-          resultsContainer.innerHTML = '';
-          data.results.forEach(movie => {
-            const div = document.createElement('div');
-            div.className = 'movie-card';
-            div.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" />`;
-            div.onclick = () => window.location.href = `movie.html?id=${movie.id}`;
-            resultsContainer.appendChild(div);
-          });
-        });
-    }
-  });
-});
-
 setupHero();
-renderShelf(`https://api.themoviedb.org/3/trending/all/week?api_key=${apiKey}`, 'trendingMixed');
+renderShelf(`https://api.themoviedb.org/3/trending/all/week?api_key=${apiKey}`, 'trendingShelf');
 renderShelf(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`, 'popularShelf');
-renderShelf(`https://api.themoviedb.org/3/movie/top_rated?api_key=${apiKey}`, 'topRatedShelf');
-
 </script>
 </body>
 </html>
