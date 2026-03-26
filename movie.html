@@ -17,322 +17,102 @@
       --accent-gold: #FFD700;
       --gradient-primary: linear-gradient(135deg, #FF0033 0%, #CC0066 100%);
     }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      background: var(--bg-dark);
-      color: var(--text-primary);
-      font-family: 'DM Sans', sans-serif;
-      overflow-x: hidden;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: 
-        radial-gradient(circle at 20% 50%, rgba(255, 0, 51, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(204, 0, 102, 0.08) 0%, transparent 50%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    header {
-      background: rgba(10, 10, 10, 0.7);
-      backdrop-filter: blur(20px) saturate(180%);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      padding: 25px 60px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      animation: slideDown 0.6s ease-out;
-    }
-    
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-100%);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    header h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 42px;
-      letter-spacing: 4px;
-      background: var(--gradient-primary);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    header h1:hover {
-      letter-spacing: 7px;
-      filter: drop-shadow(0 0 20px rgba(255, 0, 51, 0.5));
-    }
-
-    .back-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: white;
-      padding: 12px 30px;
-      font-size: 15px;
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
-      border-radius: 30px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .back-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: var(--gradient-primary);
-      transition: left 0.4s ease;
-      z-index: -1;
-    }
-
-    .back-btn:hover {
-      border-color: var(--primary);
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(255, 0, 51, 0.3);
-    }
-    
-    .back-btn:hover::before {
-      left: 0;
-    }
-
-    .video-container {
-      position: relative;
-      padding: 40px 60px;
-      animation: fadeIn 0.8s ease-out 0.2s backwards;
-    }
-    
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    #movieIframe {
-      width: 100%;
-      height: 80vh;
-      background: #000;
-      border: none;
-      border-radius: 16px;
-      box-shadow: 
-        0 30px 90px rgba(0, 0, 0, 0.5),
-        0 0 0 1px rgba(255, 255, 255, 0.05);
-      transition: all 0.5s ease;
-    }
-    
-    #movieIframe:hover {
-      box-shadow: 
-        0 40px 120px rgba(255, 0, 51, 0.2),
-        0 0 0 2px rgba(255, 0, 51, 0.3);
-    }
-
-    .recommendations {
-      padding: 60px 60px 80px;
-      animation: fadeIn 1s ease-out 0.4s backwards;
-    }
-
-    .recommendations h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 38px;
-      font-weight: 900;
-      margin-bottom: 40px;
-      position: relative;
-      display: inline-block;
-    }
-    
-    .recommendations h2::after {
-      content: '';
-      position: absolute;
-      bottom: -10px;
-      left: 0;
-      width: 80px;
-      height: 4px;
-      background: var(--gradient-primary);
-      border-radius: 2px;
-    }
-
-    .rec-list {
-      display: flex;
-      gap: 24px;
-      overflow-x: auto;
-      padding-bottom: 20px;
-      scrollbar-width: none;
-    }
-    
-    .rec-list::-webkit-scrollbar {
-      display: none;
-    }
-
-    .rec-item {
-      flex: 0 0 auto;
-      width: 200px;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-      animation: cardEntry 0.6s ease-out backwards;
-    }
-    
-    .rec-item:nth-child(1) { animation-delay: 0.5s; }
-    .rec-item:nth-child(2) { animation-delay: 0.55s; }
-    .rec-item:nth-child(3) { animation-delay: 0.6s; }
-    .rec-item:nth-child(4) { animation-delay: 0.65s; }
-    .rec-item:nth-child(5) { animation-delay: 0.7s; }
-    .rec-item:nth-child(6) { animation-delay: 0.75s; }
-    
-    @keyframes cardEntry {
-      from {
-        opacity: 0;
-        transform: translateY(30px) scale(0.9);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .rec-item img {
-      width: 100%;
-      border-radius: 12px;
-      height: 300px;
-      object-fit: cover;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .rec-item:hover {
-      transform: scale(1.08) translateY(-10px);
-    }
-
-    .rec-item:hover img {
-      box-shadow: 0 25px 70px rgba(255, 0, 51, 0.3), 0 0 0 2px rgba(255, 0, 51, 0.3);
-    }
-
-    .rec-title {
-      margin-top: 16px;
-      font-size: 15px;
-      font-weight: 500;
-      font-family: 'Playfair Display', serif;
-      line-height: 1.4;
-    }
-    
-    @media (max-width: 768px) {
-      header {
-        padding: 20px 30px;
-      }
-      
-      header h1 {
-        font-size: 32px;
-      }
-      
-      .video-container,
-      .recommendations {
-        padding-left: 30px;
-        padding-right: 30px;
-      }
-      
-      #movieIframe {
-        height: 60vh;
-      }
-      
-      .recommendations h2 {
-        font-size: 28px;
-      }
-      
-      .rec-item {
-        width: 160px;
-      }
-      
-      .rec-item img {
-        height: 240px;
-      }
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg-dark); color: var(--text-primary); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 50%, rgba(255, 0, 51, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(204, 0, 102, 0.08) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+    header { background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; animation: slideDown 0.6s ease-out; }
+    header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 42px; letter-spacing: 4px; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; cursor: pointer; transition: all 0.3s ease; }
+    .nav-btns { display: flex; gap: 15px; }
+    .btn { padding: 12px 30px; font-size: 15px; font-weight: 500; border-radius: 30px; cursor: pointer; transition: 0.3s; border: 1px solid rgba(255, 255, 255, 0.1); color: white; background: rgba(255, 255, 255, 0.05); }
+    .btn-primary { background: var(--gradient-primary); border: none; }
+    .video-container { position: relative; padding: 40px 60px; animation: fadeIn 0.8s ease-out 0.2s backwards; }
+    #movieIframe { width: 100%; height: 80vh; background: #000; border: none; border-radius: 16px; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5); }
+    .recommendations { padding: 60px 60px 80px; }
+    .recommendations h2 { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 900; margin-bottom: 40px; position: relative; }
+    .rec-list { display: flex; gap: 24px; overflow-x: auto; padding-bottom: 20px; scrollbar-width: none; cursor: grab; }
+    .rec-item { flex: 0 0 auto; width: 200px; cursor: pointer; transition: 0.5s; }
+    .rec-item img { width: 100%; border-radius: 12px; height: 300px; object-fit: cover; pointer-events: none; }
+    .rec-item:hover { transform: scale(1.08) translateY(-10px); }
   </style>
 </head>
 <body>
   <header>
     <h1 onclick="goBack()">NIXFLIX</h1>
-    <button class="back-btn" onclick="goBack()">← Back to Home</button>
+    <div class="nav-btns">
+        <button id="watchlistBtn" class="btn" onclick="toggleWatchlist()">+ Add to My List</button>
+        <button class="btn btn-primary" onclick="goBack()">← Back to Home</button>
+    </div>
   </header>
-
   <div class="video-container">
-    <iframe id="movieIframe" frameborder="0"
-      allow="autoplay; fullscreen; picture-in-picture"
-      allowfullscreen webkitallowfullscreen mozallowfullscreen referrerpolicy="no-referrer"></iframe>
+    <iframe id="movieIframe" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
   </div>
-
   <div class="recommendations">
     <h2>You Might Also Like</h2>
     <div class="rec-list" id="recList"></div>
   </div>
 
- ```html
 <script>
   const movieId = new URLSearchParams(window.location.search).get('id');
   const apiKey = '93843c8c295f5655a75d6361487e911a';
+  let currentMovieData = null;
 
-  // ✅ FIXED: switched from vidsrc.me → vidfast
   document.getElementById('movieIframe').src = `https://vidfast.pro/movie/${movieId}`;
 
-  function goBack() {
-    window.location.href = 'index.html';
+  function goBack() { window.location.href = 'index.html'; }
+
+  function makeDraggable(el) {
+    let isDown = false, startX, scrollLeft;
+    el.onmousedown = (e) => { isDown = true; startX = e.pageX - el.offsetLeft; scrollLeft = el.scrollLeft; el.style.scrollBehavior = 'auto'; };
+    el.onmouseleave = () => isDown = false;
+    el.onmouseup = () => { isDown = false; el.style.scrollBehavior = 'smooth'; };
+    el.onmousemove = (e) => { if(!isDown) return; e.preventDefault(); const x = e.pageX - el.offsetLeft; const walk = (x - startX) * 2; el.scrollLeft = scrollLeft - walk; };
   }
+
+  fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}`)
+    .then(res => res.json())
+    .then(data => {
+        currentMovieData = data;
+        updateWatchlistBtnUI();
+    });
 
   fetch(`https://api.themoviedb.org/3/movie/${movieId}/recommendations?api_key=${apiKey}`)
     .then(res => res.json())
     .then(data => {
       const recList = document.getElementById('recList');
       data.results.slice(0, 10).forEach(movie => {
-        const poster = movie.poster_path
-          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-          : 'https://via.placeholder.com/200x300?text=No+Image';
-
+        if(!movie.poster_path) return;
         const div = document.createElement('div');
         div.className = 'rec-item';
-        div.innerHTML = `
-          <img src="${poster}" alt="${movie.title}">
-          <div class="rec-title">${movie.title}</div>
-        `;
-        div.onclick = () => {
-          window.location.href = `movie.html?id=${movie.id}`;
-        };
+        div.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${movie.poster_path}">`;
+        div.onclick = () => { window.location.href = `movie.html?id=${movie.id}`; };
         recList.appendChild(div);
       });
+      makeDraggable(recList);
     });
-</script>
-```
 
+  function toggleWatchlist() {
+    let list = JSON.parse(localStorage.getItem('nixflix_watchlist')) || [];
+    const index = list.findIndex(item => item.id == currentMovieData.id);
+    if (index > -1) { list.splice(index, 1); } 
+    else {
+        list.push({
+            id: currentMovieData.id,
+            poster_path: currentMovieData.poster_path,
+            title: currentMovieData.title,
+            media_type: 'movie'
+        });
+    }
+    localStorage.setItem('nixflix_watchlist', JSON.stringify(list));
+    updateWatchlistBtnUI();
+  }
+
+  function updateWatchlistBtnUI() {
+    const list = JSON.parse(localStorage.getItem('nixflix_watchlist')) || [];
+    const btn = document.getElementById('watchlistBtn');
+    const isAdded = list.some(item => item.id == currentMovieData.id);
+    btn.innerHTML = isAdded ? '✓ In My List' : '+ Add to My List';
+    btn.style.background = isAdded ? 'var(--primary)' : 'rgba(255,255,255,0.05)';
+  }
+</script>
 </body>
 </html>
