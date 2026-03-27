@@ -11,7 +11,9 @@
     :root {
       --primary: #FF0033;
       --bg-dark: #0A0A0A;
+      --bg-elevated: #1A1A1A;
       --text-primary: #FFFFFF;
+      --text-secondary: #B8B8B8;
       --accent-blue: #3B82F6;
       --gradient-primary: linear-gradient(135deg, #FF0033 0%, #CC0066 100%);
     }
@@ -24,32 +26,48 @@
       font-family: 'DM Sans', sans-serif;
       overflow-x: hidden;
       -webkit-tap-highlight-color: transparent;
+      font-size: 14px; /* Zoomed out feel */
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(255, 0, 51, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(204, 0, 102, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
     }
 
     header {
-      padding: 25px 60px;
+      padding: 20px 60px;
       position: fixed; top: 0; width: 100%; z-index: 10000;
       display: flex; justify-content: space-between; align-items: center;
-      background: linear-gradient(to bottom, rgba(10,10,10,1) 40%, transparent);
+      background: rgba(10, 10, 10, 0.7);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
     
     .logo {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 48px; letter-spacing: 4px;
+      font-size: 42px; letter-spacing: 4px;
       background: var(--gradient-primary);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       cursor: pointer;
-      user-select: none;
+      transition: 0.3s;
     }
+    .logo:hover { letter-spacing: 6px; filter: drop-shadow(0 0 15px rgba(255, 0, 51, 0.4)); }
 
     .search-input {
-      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-      padding: 12px 25px; border-radius: 50px; color: white; width: 300px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      padding: 12px 25px; border-radius: 50px; color: white; width: 350px;
       backdrop-filter: blur(20px); outline: none; transition: 0.3s;
     }
+    .search-input:focus { background: rgba(255,255,255,0.1); border-color: var(--primary); width: 400px; }
 
-    #heroSection { position: relative; height: 85vh; width: 100%; overflow: hidden; z-index: 10; }
+    #heroSection { position: relative; height: 75vh; width: 100%; overflow: hidden; z-index: 10; }
     .hero-slide {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       background-size: cover; background-position: center 15%;
@@ -62,169 +80,75 @@
       background: linear-gradient(to right, rgba(10,10,10,0.9) 10%, transparent 70%),
                   linear-gradient(to top, rgba(10,10,10,1) 0%, transparent 30%);
     }
-    .hero-content { position: relative; z-index: 100; max-width: 700px; margin-top: 60px; }
-    .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: 100px; line-height: 0.85; margin-bottom: 25px; user-select: none; }
+    .hero-content { position: relative; z-index: 100; max-width: 800px; margin-top: 40px; }
+    .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: 80px; line-height: 0.85; margin-bottom: 25px; }
     .hero-btns { display: flex; gap: 15px; }
     
     .btn { 
-        padding: 16px 35px; border-radius: 8px; font-weight: 700; 
-        cursor: pointer; border: none; transition: 0.3s; 
+        padding: 12px 28px; border-radius: 30px; font-weight: 700; 
+        cursor: pointer; border: none; transition: 0.3s; font-size: 14px;
     }
-    .btn-watch { background: var(--accent-blue); color: white; }
-    .btn-info { background: rgba(255,255,255,0.1); color: white; backdrop-filter: blur(10px); }
+    .btn-watch { background: var(--gradient-primary); color: white; }
+    .btn-info { background: rgba(255,255,255,0.1); color: white; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+    .btn:hover { transform: scale(1.05); }
 
-    .genre-nav { padding: 30px 60px; position: relative; z-index: 100; background: var(--bg-dark); }
+    .genre-nav { padding: 30px 60px; position: relative; z-index: 100; background: transparent; }
     .genre-list { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; }
     .genre-item {
       padding: 10px 25px; background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.1); border-radius: 50px;
-      color: #B8B8B8; cursor: pointer; white-space: nowrap; transition: 0.3s;
-      user-select: none;
+      color: var(--text-secondary); cursor: pointer; white-space: nowrap; transition: 0.3s;
+      font-weight: 500;
     }
-    .genre-item.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .genre-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .genre-item.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 20px rgba(255, 0, 51, 0.3); }
 
-    .section-title { padding: 60px 60px 25px; font-family: 'Playfair Display', serif; font-size: 42px; font-weight: 900; display: flex; align-items: center; gap: 15px; user-select: none; }
-    .section-title::before { content: ''; width: 4px; height: 35px; background: var(--gradient-primary); border-radius: 10px; }
+    .section-title { padding: 40px 60px 15px; font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 900; display: flex; align-items: center; gap: 15px; position: relative; z-index: 2; }
+    .section-title::before { content: ''; width: 4px; height: 26px; background: var(--gradient-primary); border-radius: 10px; }
 
     .carousel { 
       display: flex; 
       overflow-x: auto; 
-      padding: 20px 60px 40px; 
-      gap: 20px; 
+      padding: 10px 60px 40px; 
+      gap: 18px; 
       scrollbar-width: none; 
       cursor: grab;
-      user-select: none; 
-      -webkit-user-select: none;
+      position: relative; z-index: 2;
+      touch-action: pan-y;
+      user-select: none;
+      -ms-overflow-style: none;
     }
+    .carousel::-webkit-scrollbar { display: none; }
     .carousel:active { cursor: grabbing; }
 
     .movie-card { 
-      width: 220px; 
+      width: 190px; 
       flex-shrink: 0; 
-      transition: 0.5s; 
+      transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
       cursor: pointer; 
     }
     .movie-card img { 
-      width: 100%; height: 320px; object-fit: cover; border-radius: 12px; 
-      pointer-events: none;
-      -webkit-user-drag: none;
+      width: 100%; height: 275px; object-fit: cover; border-radius: 12px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      pointer-events: none; /* Crucial for dragging */
     }
-    .movie-card:hover { transform: scale(1.08) translateY(-10px); }
+    .movie-card:hover { transform: scale(1.08) translateY(-8px); }
 
-    .search-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); padding: 120px 60px; gap: 25px; }
+    .search-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); padding: 120px 60px; gap: 25px; }
     .hidden { display: none !important; }
 
-    /* Mobile Responsive Styles */
     @media (max-width: 768px) {
-      header {
-        padding: 20px 20px;
-        flex-direction: column;
-        gap: 15px;
-      }
-
-      .logo {
-        font-size: 36px;
-        letter-spacing: 2px;
-      }
-
-      .search-input {
-        width: 100%;
-        padding: 10px 20px;
-      }
-
-      #heroSection {
-        height: 60vh;
-      }
-
-      .hero-slide {
-        padding: 0 20px;
-      }
-
-      .hero-content {
-        margin-top: 40px;
-      }
-
-      .hero-title {
-        font-size: 50px;
-      }
-
-      .hero-btns {
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .btn {
-        width: 100%;
-        text-align: center;
-      }
-
-      .genre-nav {
-        padding: 20px 20px;
-      }
-
-      .genre-list {
-        gap: 8px;
-      }
-
-      .genre-item {
-        padding: 8px 16px;
-        font-size: 14px;
-      }
-
-      .section-title {
-        padding: 40px 20px 15px;
-        font-size: 28px;
-      }
-
-      .section-title::before {
-        height: 25px;
-      }
-
-      .carousel {
-        padding: 15px 20px 30px;
-        gap: 15px;
-      }
-
-      .movie-card {
-        width: 160px;
-      }
-
-      .movie-card img {
-        height: 240px;
-      }
-
-      .search-grid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        padding: 100px 20px;
-        gap: 15px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .logo {
-        font-size: 30px;
-      }
-
-      .hero-title {
-        font-size: 40px;
-      }
-
-      .section-title {
-        font-size: 24px;
-      }
-
-      .movie-card {
-        width: 140px;
-      }
-
-      .movie-card img {
-        height: 210px;
-      }
-
-      .genre-item {
-        padding: 6px 14px;
-        font-size: 13px;
-      }
+      header { padding: 15px 20px; flex-direction: column; gap: 12px; }
+      .logo { font-size: 30px; }
+      .search-input { width: 100%; }
+      #heroSection { height: 50vh; }
+      .hero-slide { padding: 0 20px; }
+      .hero-title { font-size: 45px; }
+      .genre-nav { padding: 15px 20px; }
+      .section-title { padding: 30px 20px 10px; font-size: 24px; }
+      .carousel { padding: 10px 20px 30px; gap: 12px; }
+      .movie-card { width: 140px; }
+      .movie-card img { height: 210px; }
     }
   </style>
 </head>
@@ -246,6 +170,7 @@
     <div class="genre-item" data-id="27">Horror</div>
     <div class="genre-item" data-id="35">Comedy</div>
     <div class="genre-item" data-id="878">Sci-Fi</div>
+    <div class="genre-item" data-id="16">Animation</div>
   </div>
 </nav>
 
@@ -264,14 +189,23 @@
     <div id="defaultShelves">
         <h2 class="section-title">Trending Now</h2>
         <section id="trendingShelf" class="carousel"></section>
+
+        <h2 class="section-title">Top Rated Masterpieces</h2>
+        <section id="topRatedShelf" class="carousel"></section>
+
         <h2 class="section-title">Popular Choice</h2>
         <section id="popularShelf" class="carousel"></section>
+
+        <h2 class="section-title">New Arrivals</h2>
+        <section id="upcomingShelf" class="carousel"></section>
     </div>
+
     <div id="genreSingleShelf" class="hidden">
         <h2 class="section-title" id="genreTitle">Selection</h2>
         <section id="genreShelf" class="carousel"></section>
     </div>
   </div>
+
   <div id="searchView" class="hidden">
     <h2 class="section-title" id="searchTitle">Search Results</h2>
     <section id="searchGrid" class="search-grid"></section>
@@ -283,22 +217,30 @@ const apiKey = '93843c8c295f5655a75d6361487e911a';
 const imgBase = 'https://image.tmdb.org/t/p/original';
 
 function makeDraggable(el) {
-    let isDown = false, startX, scrollLeft;
-    el.onmousedown = (e) => { 
-        isDown = true; 
-        startX = e.pageX - el.offsetLeft; 
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    el.addEventListener('pointerdown', (e) => {
+        isDown = true;
+        startX = e.pageX - el.offsetLeft;
         scrollLeft = el.scrollLeft;
         el.style.scrollBehavior = 'auto';
-    };
-    el.onmouseleave = () => isDown = false;
-    el.onmouseup = () => { isDown = false; el.style.scrollBehavior = 'smooth'; };
-    el.onmousemove = (e) => { 
-        if(!isDown) return; 
+    });
+
+    el.addEventListener('pointerleave', () => isDown = false);
+    el.addEventListener('pointerup', () => {
+        isDown = false;
+        el.style.scrollBehavior = 'smooth';
+    });
+
+    el.addEventListener('pointermove', (e) => {
+        if (!isDown) return;
         e.preventDefault();
-        const x = e.pageX - el.offsetLeft; 
-        const walk = (x - startX) * 2; 
-        el.scrollLeft = scrollLeft - walk; 
-    };
+        const x = e.pageX - el.offsetLeft;
+        const walk = (x - startX) * 2;
+        el.scrollLeft = scrollLeft - walk;
+    });
 }
 
 function goToDetails(item) {
@@ -310,17 +252,11 @@ function goToDetails(item) {
 
 function resetToHome() { window.location.reload(); }
 
-// NEW: Render My List
 function renderMyList() {
     const myList = JSON.parse(localStorage.getItem('nixflix_watchlist')) || [];
     const section = document.getElementById('myListSection');
     const shelf = document.getElementById('myListShelf');
-
-    if (myList.length === 0) {
-        section.classList.add('hidden');
-        return;
-    }
-
+    if (myList.length === 0) { section.classList.add('hidden'); return; }
     section.classList.remove('hidden');
     shelf.innerHTML = '';
     myList.forEach(item => {
@@ -333,71 +269,36 @@ function renderMyList() {
     makeDraggable(shelf);
 }
 
-// NEW: Render Continue Watching
 async function renderContinueWatching() {
     const showProgress = JSON.parse(localStorage.getItem('nixflix_watch_progress')) || {};
     const movieProgress = JSON.parse(localStorage.getItem('nixflix_movie_progress')) || {};
     const section = document.getElementById('continueWatchingSection');
     const shelf = document.getElementById('continueWatchingShelf');
-
-    // Combine both shows and movies
-    const allProgress = [
-        ...Object.entries(showProgress).map(([id, progress]) => ({
-            id,
-            type: 'tv',
-            ...progress
-        })),
-        ...Object.entries(movieProgress).map(([id, progress]) => ({
-            id,
-            type: 'movie',
-            ...progress
-        }))
-    ].sort((a, b) => new Date(b.lastWatched) - new Date(a.lastWatched));
-
-    if (allProgress.length === 0) {
-        section.classList.add('hidden');
-        return;
-    }
-
-    section.classList.remove('hidden');
-    shelf.innerHTML = '';
-
+    const allProgress = [...Object.entries(showProgress).map(([id, p]) => ({ id, type: 'tv', ...p })),
+                        ...Object.entries(movieProgress).map(([id, p]) => ({ id, type: 'movie', ...p }))]
+                        .sort((a, b) => new Date(b.lastWatched) - new Date(a.lastWatched));
+    if (allProgress.length === 0) { section.classList.add('hidden'); return; }
+    section.classList.remove('hidden'); shelf.innerHTML = '';
     allProgress.slice(0, 10).forEach(async (progress) => {
         const endpoint = progress.type === 'tv' 
             ? `https://api.themoviedb.org/3/tv/${progress.id}?api_key=${apiKey}`
             : `https://api.themoviedb.org/3/movie/${progress.id}?api_key=${apiKey}`;
-
-        fetch(endpoint)
-            .then(r => r.json())
-            .then(item => {
-                const card = document.createElement('div');
-                card.className = 'movie-card';
-                card.style.position = 'relative';
-                
-                const badgeText = progress.type === 'tv' 
-                    ? `S${progress.season} E${progress.episode}`
-                    : 'Resume Movie';
-                
-                card.innerHTML = `
-                    <img src="https://image.tmdb.org/t/p/w500${item.poster_path || progress.poster_path}" />
-                    <div style="position: absolute; bottom: 10px; left: 10px; right: 10px; background: rgba(10,10,10,0.95); padding: 8px 12px; border-radius: 8px; backdrop-filter: blur(10px);">
-                        <div style="font-size: 11px; font-weight: 700; color: var(--primary);">${badgeText}</div>
-                        <div style="font-size: 10px; color: #888; margin-top: 2px;">Continue Watching</div>
-                    </div>
-                `;
-                
-                card.onclick = () => {
-                    if (progress.type === 'tv') {
-                        window.location.href = `show.html?id=${progress.id}&name=${encodeURIComponent(progress.showName || item.name)}`;
-                    } else {
-                        window.location.href = `movie.html?id=${progress.id}`;
-                    }
-                };
-                
-                shelf.appendChild(card);
-            });
+        fetch(endpoint).then(r => r.json()).then(item => {
+            const card = document.createElement('div');
+            card.className = 'movie-card';
+            card.style.position = 'relative';
+            const badge = progress.type === 'tv' ? `S${progress.season} E${progress.episode}` : 'Resume';
+            card.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${item.poster_path || progress.poster_path}" />
+                <div style="position: absolute; bottom: 10px; left: 10px; right: 10px; background: rgba(10,10,10,0.9); padding: 8px; border-radius: 8px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="font-size: 11px; font-weight: 700; color: var(--primary);">${badge}</div>
+                </div>`;
+            card.onclick = () => {
+                if (progress.type === 'tv') window.location.href = `show.html?id=${progress.id}&name=${encodeURIComponent(progress.showName || item.name)}`;
+                else window.location.href = `movie.html?id=${progress.id}`;
+            };
+            shelf.appendChild(card);
+        });
     });
-
     makeDraggable(shelf);
 }
 
@@ -434,9 +335,10 @@ document.querySelectorAll('.genre-item').forEach(item => {
         const gid = item.dataset.id;
         document.querySelectorAll('.genre-item').forEach(i => i.classList.remove('active'));
         item.classList.add('active');
-        if (gid === 'all') { resetToHome(); } 
-        else {
-            document.getElementById('myListSection').classList.add('hidden');
+        if (gid === 'all') { 
+            document.getElementById('defaultShelves').classList.remove('hidden');
+            document.getElementById('genreSingleShelf').classList.add('hidden');
+        } else {
             document.getElementById('defaultShelves').classList.add('hidden');
             document.getElementById('genreSingleShelf').classList.remove('hidden');
             document.getElementById('genreTitle').innerText = item.innerText;
@@ -483,7 +385,9 @@ setupHero();
 renderContinueWatching();
 renderMyList();
 renderShelf(`https://api.themoviedb.org/3/trending/all/week?api_key=${apiKey}`, 'trendingShelf');
+renderShelf(`https://api.themoviedb.org/3/movie/top_rated?api_key=${apiKey}`, 'topRatedShelf');
 renderShelf(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`, 'popularShelf');
+renderShelf(`https://api.themoviedb.org/3/movie/upcoming?api_key=${apiKey}`, 'upcomingShelf');
 </script>
 </body>
 </html>
