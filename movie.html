@@ -33,6 +33,88 @@
     .rec-item { flex: 0 0 auto; width: 200px; cursor: pointer; transition: 0.5s; }
     .rec-item img { width: 100%; border-radius: 12px; height: 300px; object-fit: cover; pointer-events: none; }
     .rec-item:hover { transform: scale(1.08) translateY(-10px); }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      header {
+        padding: 20px 20px;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      header h1 {
+        font-size: 32px;
+        letter-spacing: 2px;
+      }
+
+      .nav-btns {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+      }
+
+      .btn {
+        width: 100%;
+        text-align: center;
+      }
+
+      .video-container {
+        padding: 20px 20px;
+      }
+
+      #movieIframe {
+        height: 50vh;
+        border-radius: 12px;
+      }
+
+      .recommendations {
+        padding: 40px 20px 60px;
+      }
+
+      .recommendations h2 {
+        font-size: 28px;
+        margin-bottom: 25px;
+      }
+
+      .rec-list {
+        gap: 15px;
+      }
+
+      .rec-item {
+        width: 160px;
+      }
+
+      .rec-item img {
+        height: 240px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header h1 {
+        font-size: 28px;
+      }
+
+      .btn {
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+
+      #movieIframe {
+        height: 40vh;
+      }
+
+      .recommendations h2 {
+        font-size: 24px;
+      }
+
+      .rec-item {
+        width: 140px;
+      }
+
+      .rec-item img {
+        height: 210px;
+      }
+    }
   </style>
 </head>
 <body>
