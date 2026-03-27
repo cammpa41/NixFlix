@@ -169,6 +169,16 @@
 
     .hidden { display: none; }
 
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(100%); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slideOutRight {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(100%); }
+    }
+
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
       header {
@@ -369,8 +379,63 @@ const showName = params.get('name');
 let currentEpisodeIndex = -1;
 let currentEpisodeList = [];
 let currentShowData = null; // Store for Watchlist logic
+let progressSaveInterval = null;
 
 document.getElementById('showTitle').textContent = decodeURIComponent(showName || 'Series');
+
+// Watch Progress Functions
+function getWatchProgress(showId) {
+  const allProgress = JSON.parse(localStorage.getItem('nixflix_watch_progress')) || {};
+  return allProgress[showId] || null;
+}
+
+function saveWatchProgress(showId, season, episode, timestamp) {
+  const allProgress = JSON.parse(localStorage.getItem('nixflix_watch_progress')) || {};
+  allProgress[showId] = {
+    season: parseInt(season),
+    episode: parseInt(episode),
+    timestamp: timestamp,
+    lastWatched: new Date().toISOString(),
+    showName: decodeURIComponent(showName)
+  };
+  localStorage.setItem('nixflix_watch_progress', JSON.stringify(allProgress));
+}
+
+function clearProgressTracking() {
+  if (progressSaveInterval) {
+    clearInterval(progressSaveInterval);
+    progressSaveInterval = null;
+  }
+}
+
+function startProgressTracking(season, episode) {
+  clearProgressTracking();
+  
+  // Save progress every 10 seconds
+  progressSaveInterval = setInterval(() => {
+    try {
+      const iframe = document.getElementById('videoPlayer');
+      if (iframe && iframe.contentWindow) {
+        // Send message to iframe to get current time
+        iframe.contentWindow.postMessage({ type: 'getTime' }, '*');
+      }
+    } catch (e) {
+      // Cross-origin issues expected, we'll track episode position instead
+      saveWatchProgress(showId, season, episode, 0);
+    }
+  }, 10000);
+}
+
+// Listen for messages from iframe (if supported by vidfast.pro)
+window.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'timeUpdate') {
+    const currentSeason = document.getElementById('seasonSelect').value;
+    const currentEp = currentEpisodeList[currentEpisodeIndex]?.episode_number;
+    if (currentEp) {
+      saveWatchProgress(showId, currentSeason, currentEp, event.data.currentTime || 0);
+    }
+  }
+});
 
 function handleSearch(event) {
   const q = event.target.value.trim();
@@ -403,30 +468,137 @@ async function loadSeasons() {
     opt.textContent = `Season ${s.season_number}`;
     select.appendChild(opt);
   });
+
+  // Check for saved progress
+  const progress = getWatchProgress(showId);
+  if (progress) {
+    // Set the season select to saved season
+    select.value = progress.season;
+    
+    // Show resume notification
+    showResumeNotification(progress);
+  }
+  
   loadEpisodes();
   loadRecommendations();
 }
 
-function loadEpisodes() {
-  const season = document.getElementById('seasonSelect').value;
-  fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${season}?api_key=${apiKey}`)
-    .then(r => r.json()).then(data => {
-      currentEpisodeList = data.episodes;
-      const list = document.getElementById('episodeList');
-      list.innerHTML = '';
-      data.episodes.forEach((ep, idx) => {
-        const div = document.createElement('div');
-        div.className = 'episode-item';
-        div.innerHTML = `<img src="https://image.tmdb.org/t/p/w500${ep.still_path}"><div class="episode-info"><h3>Ep ${ep.episode_number}: ${ep.name}</h3></div>`;
-        div.onclick = () => { currentEpisodeIndex = idx; playEpisode(ep.episode_number, season); };
-        list.appendChild(div);
-      });
-    });
+function showResumeNotification(progress) {
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    background: rgba(26, 26, 26, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--primary);
+    border-radius: 12px;
+    padding: 20px 25px;
+    z-index: 10000;
+    max-width: 350px;
+    animation: slideInRight 0.4s ease-out;
+    box-shadow: 0 10px 40px rgba(255, 0, 51, 0.3);
+  `;
+  
+  notification.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+      <div style="width: 40px; height: 40px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">▶</div>
+      <div>
+        <div style="font-weight: 700; font-size: 15px;">Continue Watching</div>
+        <div style="font-size: 13px; color: var(--text-secondary);">Season ${progress.season}, Episode ${progress.episode}</div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button onclick="resumeFromProgress()" style="flex: 1; padding: 10px; background: var(--gradient-primary); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">Resume</button>
+      <button onclick="this.parentElement.parentElement.remove()" style="padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; cursor: pointer;">Dismiss</button>
+    </div>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Auto-dismiss after 15 seconds
+  setTimeout(() => {
+    if (notification.parentElement) {
+      notification.style.animation = 'slideOutRight 0.4s ease-out';
+      setTimeout(() => notification.remove(), 400);
+    }
+  }, 15000);
 }
 
-function playEpisode(num, s) {
+window.resumeFromProgress = function() {
+  const progress = getWatchProgress(showId);
+  if (progress) {
+    document.getElementById('seasonSelect').value = progress.season;
+    loadEpisodes().then(() => {
+      // Find the episode index
+      const epIndex = currentEpisodeList.findIndex(ep => ep.episode_number === progress.episode);
+      if (epIndex !== -1) {
+        currentEpisodeIndex = epIndex;
+        playEpisode(progress.episode, progress.season, progress.timestamp);
+      }
+    });
+  }
+  // Remove notification
+  document.querySelectorAll('div').forEach(el => {
+    if (el.textContent.includes('Continue Watching')) {
+      el.remove();
+    }
+  });
+};
+
+async function loadEpisodes() {
+  const season = document.getElementById('seasonSelect').value;
+  const data = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${season}?api_key=${apiKey}`)
+    .then(r => r.json());
+  
+  currentEpisodeList = data.episodes;
+  const list = document.getElementById('episodeList');
+  list.innerHTML = '';
+  
+  // Check if there's a saved episode for this season
+  const progress = getWatchProgress(showId);
+  const isCurrentSeason = progress && progress.season === parseInt(season);
+  
+  data.episodes.forEach((ep, idx) => {
+    const div = document.createElement('div');
+    div.className = 'episode-item';
+    
+    // Add "Currently Watching" badge if this is the saved episode
+    const badge = (isCurrentSeason && ep.episode_number === progress.episode) 
+      ? '<div style="position: absolute; top: 10px; right: 10px; background: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;">RESUME</div>' 
+      : '';
+    
+    div.innerHTML = `
+      <div style="position: relative;">
+        <img src="https://image.tmdb.org/t/p/w500${ep.still_path}">
+        ${badge}
+      </div>
+      <div class="episode-info">
+        <h3>Ep ${ep.episode_number}: ${ep.name}</h3>
+      </div>
+    `;
+    div.onclick = () => { currentEpisodeIndex = idx; playEpisode(ep.episode_number, season); };
+    list.appendChild(div);
+  });
+}
+
+function playEpisode(num, s, startTime = 0) {
   const isAuto = document.getElementById('autoNextToggle').checked;
-  document.getElementById('videoPlayer').src = `https://vidfast.pro/tv/${showId}/${s}/${num}?autoPlay=true&nextButton=true${isAuto ? '&autoNext=true' : ''}&theme=FF0033`;
+  let url = `https://vidfast.pro/tv/${showId}/${s}/${num}?autoPlay=true&nextButton=true${isAuto ? '&autoNext=true' : ''}&theme=FF0033`;
+  
+  // Add timestamp if resuming
+  if (startTime > 0) {
+    url += `&t=${Math.floor(startTime)}`;
+  }
+  
+  document.getElementById('videoPlayer').src = url;
+  
+  // Start tracking progress for this episode
+  startProgressTracking(s, num);
+  
+  // Save that we started this episode
+  saveWatchProgress(showId, s, num, startTime);
+  
   updateBtns();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
