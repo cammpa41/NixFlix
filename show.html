@@ -179,6 +179,11 @@
       to { opacity: 0; transform: translateX(100%); }
     }
 
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
       header {
@@ -282,6 +287,29 @@
         padding: 12px 20px !important;
         font-size: 14px !important;
       }
+
+      /* Still Watching Modal Mobile */
+      #stillWatchingModal > div {
+        padding: 30px 20px !important;
+        margin: 0 20px;
+      }
+
+      #stillWatchingModal h2 {
+        font-size: 28px !important;
+      }
+
+      #stillWatchingModal p {
+        font-size: 14px !important;
+      }
+
+      #stillWatchingModal button {
+        padding: 14px 24px !important;
+        font-size: 14px !important;
+      }
+
+      #stillWatchingModal > div > div:last-child {
+        flex-direction: column !important;
+      }
     }
 
     @media (max-width: 480px) {
@@ -380,8 +408,170 @@ let currentEpisodeIndex = -1;
 let currentEpisodeList = [];
 let currentShowData = null; // Store for Watchlist logic
 let progressSaveInterval = null;
+let consecutiveAutoplayCount = 0;
+const AUTOPLAY_LIMIT = 6;
 
 document.getElementById('showTitle').textContent = decodeURIComponent(showName || 'Series');
+
+// Are You Still Watching? Modal
+function showStillWatchingModal() {
+  // Pause/stop the current video
+  const iframe = document.getElementById('videoPlayer');
+  const currentUrl = iframe.src;
+  
+  // Create modal overlay
+  const modal = document.createElement('div');
+  modal.id = 'stillWatchingModal';
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(20px);
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+  `;
+  
+  modal.innerHTML = `
+    <div style="text-align: center; max-width: 500px; padding: 40px;">
+      <div style="width: 80px; height: 80px; margin: 0 auto 30px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; animation: pulse 2s infinite;">
+        ⏸
+      </div>
+      <h2 style="font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 900; margin-bottom: 15px;">Are You Still Watching?</h2>
+      <p style="color: var(--text-secondary); font-size: 16px; margin-bottom: 40px;">You've watched ${AUTOPLAY_LIMIT} episodes in a row. Take a break or keep binging!</p>
+      <div style="display: flex; gap: 15px; justify-content: center;">
+        <button onclick="resumeWatching()" style="padding: 16px 40px; background: var(--gradient-primary); border: none; border-radius: 30px; color: white; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.3s;">
+          Yes, Keep Watching
+        </button>
+        <button onclick="stopWatching()" style="padding: 16px 40px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; color: white; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.3s;">
+          No, I'm Done
+        </button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Add pulse animation
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+window.resumeWatching = function() {
+  const modal = document.getElementById('stillWatchingModal');
+  if (modal) {
+    modal.style.animation = 'fadeOut 0.3s ease-out';
+    setTimeout(() => modal.remove(), 300);
+  }
+  
+  // Reset counter and continue autoplay
+  consecutiveAutoplayCount = 0;
+  
+  // The video should continue playing automatically
+  // No need to reload, just remove the modal
+};
+
+window.stopWatching = function() {
+  const modal = document.getElementById('stillWatchingModal');
+  if (modal) modal.remove();
+  
+  // Turn off autoplay
+  document.getElementById('autoNextToggle').checked = false;
+  consecutiveAutoplayCount = 0;
+  
+  // Go back to homepage
+  window.location.href = 'index.html';
+};
+
+// Listen for episode changes from vidfast.pro iframe
+let lastEpisodeNumber = null;
+
+window.addEventListener('message', (event) => {
+  // Check if episode changed (autoplay happened)
+  if (event.data && event.data.type === 'episodeChange') {
+    const newEpisodeNumber = event.data.episode;
+    
+    if (lastEpisodeNumber !== null && newEpisodeNumber !== lastEpisodeNumber) {
+      consecutiveAutoplayCount++;
+      
+      if (consecutiveAutoplayCount >= AUTOPLAY_LIMIT) {
+        showStillWatchingModal();
+      }
+    }
+    
+    lastEpisodeNumber = newEpisodeNumber;
+  }
+  
+  // Also handle time updates for progress tracking
+  if (event.data && event.data.type === 'timeUpdate') {
+    const currentSeason = document.getElementById('seasonSelect').value;
+    const currentEp = currentEpisodeList[currentEpisodeIndex]?.episode_number;
+    if (currentEp) {
+      saveWatchProgress(showId, currentSeason, currentEp, event.data.currentTime || 0);
+    }
+  }
+});
+
+// Fallback: Track when iframe URL changes (for autoplay detection)
+let lastIframeSrc = '';
+let lastDetectedEpisode = null;
+
+setInterval(() => {
+  const iframe = document.getElementById('videoPlayer');
+  if (iframe && iframe.src && iframe.src !== lastIframeSrc) {
+    // Extract episode number from URL
+    const urlMatch = iframe.src.match(/\/tv\/\d+\/(\d+)\/(\d+)/);
+    if (urlMatch) {
+      const season = parseInt(urlMatch[1]);
+      const episode = parseInt(urlMatch[2]);
+      const episodeKey = `${season}-${episode}`;
+      
+      // Check if this is a different episode than we were just watching
+      if (lastDetectedEpisode && lastDetectedEpisode !== episodeKey && lastIframeSrc) {
+        // Episode changed without user clicking - must be autoplay
+        consecutiveAutoplayCount++;
+        
+        console.log(`Autoplay detected: ${consecutiveAutoplayCount}/${AUTOPLAY_LIMIT} episodes`);
+        
+        if (consecutiveAutoplayCount >= AUTOPLAY_LIMIT) {
+          // Small delay to let the new episode load
+          setTimeout(() => {
+            showStillWatchingModal();
+          }, 1000);
+        }
+        
+        // Update episode index to match
+        const newEpisodeIndex = currentEpisodeList.findIndex(ep => ep.episode_number === episode);
+        if (newEpisodeIndex !== -1) {
+          currentEpisodeIndex = newEpisodeIndex;
+          updateBtns();
+          
+          // Save progress for new episode
+          saveWatchProgress(showId, season, episode, 0);
+        }
+      }
+      
+      lastDetectedEpisode = episodeKey;
+    }
+    
+    lastIframeSrc = iframe.src;
+  }
+}, 3000);
 
 // Watch Progress Functions
 function getWatchProgress(showId) {
@@ -599,6 +789,10 @@ function playEpisode(num, s, startTime = 0) {
   // Save that we started this episode
   saveWatchProgress(showId, s, num, startTime);
   
+  // Reset autoplay counter when user manually plays an episode
+  consecutiveAutoplayCount = 0;
+  lastIframeSrc = url;
+  
   updateBtns();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -608,6 +802,9 @@ function changeEpisode(dir) {
   if (currentEpisodeList[next]) {
     currentEpisodeIndex = next;
     playEpisode(currentEpisodeList[next].episode_number, document.getElementById('seasonSelect').value);
+    
+    // Reset autoplay counter when user manually changes episode
+    consecutiveAutoplayCount = 0;
   }
 }
 
