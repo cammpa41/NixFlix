@@ -251,6 +251,11 @@
 
 <div id="contentContainer">
   <div id="shelfView">
+    <div id="continueWatchingSection" class="hidden">
+        <h2 class="section-title">Continue Watching</h2>
+        <section id="continueWatchingShelf" class="carousel"></section>
+    </div>
+
     <div id="myListSection" class="hidden">
         <h2 class="section-title">My List</h2>
         <section id="myListShelf" class="carousel"></section>
@@ -325,6 +330,74 @@ function renderMyList() {
         card.onclick = () => goToDetails(item);
         shelf.appendChild(card);
     });
+    makeDraggable(shelf);
+}
+
+// NEW: Render Continue Watching
+async function renderContinueWatching() {
+    const showProgress = JSON.parse(localStorage.getItem('nixflix_watch_progress')) || {};
+    const movieProgress = JSON.parse(localStorage.getItem('nixflix_movie_progress')) || {};
+    const section = document.getElementById('continueWatchingSection');
+    const shelf = document.getElementById('continueWatchingShelf');
+
+    // Combine both shows and movies
+    const allProgress = [
+        ...Object.entries(showProgress).map(([id, progress]) => ({
+            id,
+            type: 'tv',
+            ...progress
+        })),
+        ...Object.entries(movieProgress).map(([id, progress]) => ({
+            id,
+            type: 'movie',
+            ...progress
+        }))
+    ].sort((a, b) => new Date(b.lastWatched) - new Date(a.lastWatched));
+
+    if (allProgress.length === 0) {
+        section.classList.add('hidden');
+        return;
+    }
+
+    section.classList.remove('hidden');
+    shelf.innerHTML = '';
+
+    allProgress.slice(0, 10).forEach(async (progress) => {
+        const endpoint = progress.type === 'tv' 
+            ? `https://api.themoviedb.org/3/tv/${progress.id}?api_key=${apiKey}`
+            : `https://api.themoviedb.org/3/movie/${progress.id}?api_key=${apiKey}`;
+
+        fetch(endpoint)
+            .then(r => r.json())
+            .then(item => {
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+                card.style.position = 'relative';
+                
+                const badgeText = progress.type === 'tv' 
+                    ? `S${progress.season} E${progress.episode}`
+                    : 'Resume Movie';
+                
+                card.innerHTML = `
+                    <img src="https://image.tmdb.org/t/p/w500${item.poster_path || progress.poster_path}" />
+                    <div style="position: absolute; bottom: 10px; left: 10px; right: 10px; background: rgba(10,10,10,0.95); padding: 8px 12px; border-radius: 8px; backdrop-filter: blur(10px);">
+                        <div style="font-size: 11px; font-weight: 700; color: var(--primary);">${badgeText}</div>
+                        <div style="font-size: 10px; color: #888; margin-top: 2px;">Continue Watching</div>
+                    </div>
+                `;
+                
+                card.onclick = () => {
+                    if (progress.type === 'tv') {
+                        window.location.href = `show.html?id=${progress.id}&name=${encodeURIComponent(progress.showName || item.name)}`;
+                    } else {
+                        window.location.href = `movie.html?id=${progress.id}`;
+                    }
+                };
+                
+                shelf.appendChild(card);
+            });
+    });
+
     makeDraggable(shelf);
 }
 
@@ -407,6 +480,7 @@ function renderShelf(url, id) {
 }
 
 setupHero();
+renderContinueWatching();
 renderMyList();
 renderShelf(`https://api.themoviedb.org/3/trending/all/week?api_key=${apiKey}`, 'trendingShelf');
 renderShelf(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`, 'popularShelf');
